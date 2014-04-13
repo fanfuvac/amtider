@@ -1,0 +1,44 @@
+LIBRH = RH5
+LIBRH_X64 = RH5_X64
+LIBSuSE = SuSE
+ARCH_SUFFIX = _X64
+LIBUB = Ubuntu
+LIBUB_X64 = Ubuntu_X64
+
+###############################################################################
+# Determine operating system and architecture (32/64 bit)                     #
+###############################################################################
+OS:=$(shell lsb_release -si)
+ARCH := $(shell uname -m | sed 's/i.86/i386/')
+SuSE_VERSION := $(wildcard /etc/SuSE-release)
+Ububtu_VERSION := $(wildcard /etc/lsb-release)
+
+# Check if SuSE
+ifneq ($(strip $(SuSE_VERSION)),)
+	SUSE_NUMBER_VERSION := $(shell cat /etc/SuSE-release | awk '/VERSION = / {print $$3}')
+	ifeq ($(ARCH),x86_64)
+		OS_VERSION = $(LIBSuSE)$(SUSE_NUMBER_VERSION)$(ARCH_SUFFIX)
+	else
+		OS_VERSION = $(LIBSuSE)$(SUSE_NUMBER_VERSION)
+	endif
+else # Check if Ubuntu
+	ifeq ($(OS),Ubuntu)
+		ifeq ($(ARCH),x86_64)
+			# X64 version
+			OS_VERSION = $(LIBUB_X64)
+		else
+			# X32 version
+			OS_VERSION = $(LIBUB)
+		endif
+
+	else	
+	# RedHat 5 Version 
+		ifeq ($(ARCH),x86_64)
+			# X64 version
+			OS_VERSION = $(LIBRH_X64)
+		else
+			# X32 version
+			OS_VERSION = $(LIBRH)
+		endif
+	endif
+endif
